@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none">
+  <!-- Dark background circle -->
+  <circle cx="60" cy="60" r="60" fill="#1A1A2E"/>
+  
+  <!-- Glowing effect -->
+  <circle cx="60" cy="60" r="55" fill="#1A1A2E" stroke="url(#paint0_radial)" stroke-width="2"/>
+  
+  <!-- Star in background -->
+  <path d="M45 30L50.3 41.1967L62.5 42.75L53.75 51.3033L55.6 63.5L45 57.75L34.4 63.5L36.25 51.3033L27.5 42.75L39.7 41.1967L45 30Z" fill="#7B2CBF" fill-opacity="0.3"/>
+  
+  <!-- TV/Screen icon -->
+  <rect x="35" y="40" width="50" height="35" rx="5" fill="#6247AA" fill-opacity="0.6" stroke="#9D4EDD" stroke-width="2"/>
+  <rect x="40" y="45" width="40" height="25" rx="2" fill="#1A1A2E" stroke="#9D4EDD" stroke-width="1"/>
+  <path d="M35 70L45 80H75L85 70H35Z" fill="#6247AA" fill-opacity="0.6" stroke="#9D4EDD" stroke-width="2"/>
+  
+  <!-- Lightning bolt -->
+  <path d="M70 65L85 50L75 60L95 45L70 65Z" fill="#FFD700" stroke="#FFD700" stroke-width="2" stroke-linejoin="round"/>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(60 40) rotate(90) scale(75)">
+      <stop offset="0" stop-color="#9D4EDD"/>
+      <stop offset="1" stop-color="#9D4EDD" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg> 
