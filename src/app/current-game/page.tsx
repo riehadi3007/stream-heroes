@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { CurrentGameService } from '@/lib/current-game-service'
 import { GameSessionService } from '@/lib/game-session-service'
-import { Donator, Category } from '@/lib/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
@@ -30,12 +29,23 @@ type CurrentGamePlayer = {
   }
 }
 
+// Define game history session type
+interface GameSession {
+  session_id: string;
+  played_at: string;
+  donators: Array<{
+    id: string;
+    name: string;
+    category_name: string;
+  }>;
+}
+
 export default function CurrentGamePage() {
   const [players, setPlayers] = useState<CurrentGamePlayer[]>([])
   const [loading, setLoading] = useState(true)
   const [isPlaying, setIsPlaying] = useState(false)
   const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
-  const [gameHistory, setGameHistory] = useState<any[]>([])
+  const [gameHistory, setGameHistory] = useState<GameSession[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const router = useRouter()
   const { user, isLoading } = useAuth()
@@ -118,9 +128,10 @@ export default function CurrentGamePage() {
       await loadCurrentGame()
       
       toast.success('Game played successfully')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to play game', error)
-      toast.error(error.message || 'Failed to play game')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to play game'
+      toast.error(errorMessage)
     } finally {
       setIsPlaying(false)
     }
@@ -275,8 +286,8 @@ export default function CurrentGamePage() {
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal pl-4">
                   <li>Add players from the Donators page</li>
                   <li>Up to 4 players can be added</li>
-                  <li>Click "Play Game" to start a game</li>
-                  <li>Each player's remaining games will decrease by 1</li>
+                  <li>Click &quot;Play Game&quot; to start a game</li>
+                  <li>Each player&apos;s remaining games will decrease by 1</li>
                 </ol>
               </div>
             </div>
@@ -311,7 +322,7 @@ export default function CurrentGamePage() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {session.donators.map((donator: any) => (
+                      {session.donators.map((donator) => (
                         <div key={donator.id} className="flex items-center p-2 border rounded-md">
                           <User className="mr-2 h-4 w-4 text-muted-foreground" />
                           <div>

@@ -3,10 +3,15 @@
 import { useState } from 'react';
 import { signUp } from '@/lib/auth-service';
 
+interface SignUpResult {
+  success: boolean;
+  error?: string;
+}
+
 export default function AuthTest() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<SignUpResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -17,8 +22,9 @@ export default function AuthTest() {
       const result = await signUp(email, password);
       setResult(result);
       console.log('Sign up result:', result);
-    } catch (error: any) {
-      setResult({ success: false, error: error.message || 'Unknown error' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setResult({ success: false, error: errorMessage });
       console.error('Sign up error:', error);
     } finally {
       setLoading(false);

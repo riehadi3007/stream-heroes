@@ -11,9 +11,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
-import { PlusCircle, Pencil, Trash2, InfoIcon } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { PlusCircle, Pencil, Trash2 } from 'lucide-react'
 import CategoryForm from './category-form'
+
+// Define error type
+interface ApiError {
+  message?: string;
+}
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -65,10 +69,10 @@ export default function CategoriesPage() {
       toast.success('Category created successfully')
       setOpenCreateDialog(false)
       loadCategories()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create category', error)
       // Show more specific error message if available
-      const errorMessage = error.message || 'Failed to create category'
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create category'
       toast.error(errorMessage)
     }
   }
@@ -87,10 +91,10 @@ export default function CategoriesPage() {
       toast.success('Category updated successfully')
       setOpenEditDialog(false)
       loadCategories()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update category', error)
       // Show more specific error message if available
-      const errorMessage = error.message || 'Failed to update category'
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update category'
       toast.error(errorMessage)
     }
   }
@@ -102,9 +106,9 @@ export default function CategoriesPage() {
       setOpenDeleteDialog(false)
       setCategoryToDelete(null)
       loadCategories()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete category', error)
-      const errorMessage = error.message || 'Failed to delete category'
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete category'
       toast.error(errorMessage)
     }
   }
