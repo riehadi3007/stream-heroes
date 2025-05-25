@@ -58,7 +58,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           {!isAuthenticated ? (
             <Link href="/signin">
-              <Button variant="neo" size="sm">
+              <Button variant="default" size="sm">
                 <LogIn className="mr-2 h-4 w-4" />
                 Sign In
               </Button>
@@ -70,7 +70,7 @@ export default function Navbar() {
                 {user?.email}
               </div>
               <Button 
-                variant="cyber" 
+                variant="outline" 
                 size="sm"
                 onClick={() => signOut()}
               >

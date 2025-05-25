@@ -84,7 +84,7 @@ export default function SideMenu() {
           <Logo size="sm" variant="icon" />
         )}
         <Button 
-          variant="cyber" 
+          variant="ghost" 
           size="icon" 
           className="ml-auto"
           onClick={() => setCollapsed(!collapsed)}

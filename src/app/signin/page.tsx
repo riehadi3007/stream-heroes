@@ -126,7 +126,7 @@ export default function SignInPage() {
                   </FormItem>
                 )}
               />
-              <Button variant="neo" type="submit" className="w-full" disabled={isSubmitting}>
+              <Button variant="default" type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? 'Signing in...' : 'Sign in'}
               </Button>
             </form>
