@@ -116,7 +116,7 @@ export const GameSessionService = {
               )
             )
           `)
-          .eq('session_id', sessionId)
+          .eq('session_id', sessionId as string)
           .eq('created_by', userEmail);
           
         if (donatorError) {
@@ -134,13 +134,17 @@ export const GameSessionService = {
         }));
         
         result.push({
-          session_id: sessionId,
-          played_at: sessionInfo?.played_at || '',
+          session_id: sessionId as string,
+          played_at: sessionInfo?.played_at?.toString() || '',
           donators: formattedDonators
         });
       }
       
-      return result;
+      return result as {
+        session_id: string;
+        played_at: string;
+        donators: (Donator & { category_name: string })[];
+      }[];
     } catch (error) {
       console.error('Failed to load game sessions:', error);
       throw error;

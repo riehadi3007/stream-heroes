@@ -32,7 +32,7 @@ export const DonationHistoryService = {
         throw error;
       }
       
-      return data as DonationHistory;
+      return data as unknown as DonationHistory;
     } catch (error) {
       console.error('Failed to add donation history:', error);
       throw error;
@@ -63,7 +63,7 @@ export const DonationHistoryService = {
         throw error;
       }
       
-      return data as DonationHistory[];
+      return data as unknown as DonationHistory[];
     } catch (error) {
       console.error('Failed to fetch donation history:', error);
       throw error;

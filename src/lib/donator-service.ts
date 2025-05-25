@@ -46,7 +46,7 @@ export const DonatorService = {
         throw error;
       }
       
-      return data as (Donator & { categories: Category })[];
+      return data as unknown as (Donator & { categories: Category })[];
     } catch (error) {
       console.error('Failed to load donators:', error);
       throw error;
@@ -79,7 +79,7 @@ export const DonatorService = {
         throw new Error(`Donator with ID ${id} not found`);
       }
       
-      return data as (Donator & { categories: Category });
+      return data as unknown as (Donator & { categories: Category });
     } catch (error) {
       console.error(`Error fetching donator ${id}:`, error);
       throw error;

@@ -69,7 +69,7 @@ export const CurrentGameService = {
         await supabase
           .from('current_game')
           .delete()
-          .eq('id', existingPosition[0].id);
+          .eq('id', (existingPosition[0] as CurrentGame).id);
       }
       
       // Check if donator is already in another position
@@ -89,7 +89,7 @@ export const CurrentGameService = {
         await supabase
           .from('current_game')
           .delete()
-          .eq('id', existingDonator[0].id);
+          .eq('id', (existingDonator[0] as CurrentGame).id);
       }
       
       // Add donator to current game
