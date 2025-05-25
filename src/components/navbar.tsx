@@ -27,9 +27,6 @@ export default function Navbar() {
       case '/categories': return 'Item Shop';
       case '/donators': return 'Supporter Guild';
       case '/current-game': return 'Active Mission';
-      case '/users': return 'Player Roster';
-      case '/settings': return 'System Controls';
-      case '/leaderboard': return 'Rankings';
       default: return 'Stream Heroes';
     }
   }

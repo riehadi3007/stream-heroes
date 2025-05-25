@@ -12,11 +12,8 @@ import {
   ChevronRight, 
   LayoutDashboard, 
   ShoppingBasket, 
-  Users, 
-  Settings,
   Gamepad,
-  Flame,
-  Trophy
+  Flame
 } from 'lucide-react'
 
 type MenuItem = {
@@ -37,9 +34,6 @@ export default function SideMenu() {
     { href: '/categories', label: 'Categories', icon: <ShoppingBasket size={20} className="text-accent" /> },
     { href: '/donators', label: 'Donators', icon: <Flame size={20} className="text-[#ff6b6b]" /> },
     { href: '/current-game', label: 'Current Game', icon: <Gamepad size={20} className="text-[#4ed8c9]" /> },
-    { href: '/leaderboard', label: 'Leaderboard', icon: <Trophy size={20} className="text-[#ffd700]" /> },
-    { href: '/users', label: 'Players', icon: <Users size={20} className="text-[#9775fa]" /> },
-    { href: '/settings', label: 'Settings', icon: <Settings size={20} className="text-[#adb5bd]" /> },
   ]
 
   // Handle client-side hydration
