@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bun run build",
+  "buildCommand": "next build",
   "cleanUrls": true,
   "devCommand": "bun run dev",
   "framework": "nextjs",
