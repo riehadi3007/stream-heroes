@@ -506,8 +506,8 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
+            </CardHeader>
+            <CardContent>
             {categoriesLoading ? (
               <div className="flex justify-center items-center h-[350px]">
                 <p>Loading power-up data...</p>
@@ -541,8 +541,8 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </div>
             )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
         
         {/* Gaming Guild Leaderboard (Top Donators) */}
         <Card>

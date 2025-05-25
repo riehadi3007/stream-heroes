@@ -145,7 +145,7 @@ export const DonatorService = {
       }
       
       // Calculate total donation if total_game is provided
-      let updatedDonator = { ...donator };
+      const updatedDonator = { ...donator };
       if (donator.total_game !== undefined) {
         updatedDonator.total_donation = donator.total_game * categoryPrice;
       }
