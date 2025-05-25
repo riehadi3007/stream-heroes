@@ -178,4 +178,28 @@ export type CurrentGameUpdate = Database['public']['Tables']['current_game']['Up
 
 export type GameSession = Tables<'game_sessions'>
 export type GameSessionInsert = Database['public']['Tables']['game_sessions']['Insert']
-export type GameSessionUpdate = Database['public']['Tables']['game_sessions']['Update'] 
+export type GameSessionUpdate = Database['public']['Tables']['game_sessions']['Update']
+
+export interface Donation {
+  id: string;
+  donator_id: string;
+  amount: number;
+  created_at: string;
+  created_by: string | null;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export type DonationInsert = Omit<Donation, 'id' | 'created_at' | 'created_by' | 'updated_at' | 'updated_by'>;
+
+export interface DonationHistory {
+  id: string;
+  donator_id: string;
+  amount: number;
+  event_type: string; // 'new_donator', 'add_games', etc.
+  games_added: number | null;
+  created_at: string;
+  created_by: string | null;
+}
+
+export type DonationHistoryInsert = Omit<DonationHistory, 'id' | 'created_at' | 'created_by'>; 

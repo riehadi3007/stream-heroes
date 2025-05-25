@@ -1,6 +1,8 @@
 import { getSupabase } from './supabase';
 import { Donator, DonatorInsert, DonatorUpdate, Category } from './types';
 import { getCurrentUserEmail } from './auth-service';
+import { useAuth } from './auth-context';
+import { supabase } from './supabase';
 
 export const DonatorService = {
   async getAll(filterByCurrentUser = false): Promise<Donator[]> {
@@ -199,6 +201,44 @@ export const DonatorService = {
       }
     } catch (error) {
       console.error(`Error deleting donator ${id}:`, error);
+      throw error;
+    }
+  },
+
+  async getDonationsByDateRange(startDate: string, endDate: string): Promise<any[]> {
+    // Get the current user ID
+    const userEmail = await getCurrentUserEmail();
+    if (!userEmail) {
+      throw new Error('Authentication required');
+    }
+
+    try {
+      // Explicitly cast the data to any to avoid TypeScript errors with the complex join
+      const { data, error } = await supabase
+        .from('donators')
+        .select('*, categories:category_id(*)')
+        .gte('created_at', startDate)
+        .lte('created_at', endDate)
+        .eq('created_by', userEmail);
+
+      if (error) {
+        throw error;
+      }
+
+      // Use the any type to work around TypeScript issues with Supabase joins
+      const donators = data as any[] || [];
+      
+      // Transform the data to be suitable for chart display
+      return donators.map((donator) => ({
+        id: donator.id,
+        amount: donator.total_donation,
+        created_at: donator.created_at,
+        donator_name: donator.name,
+        category_name: donator.categories ? donator.categories.name : 'Unknown',
+        created_by: donator.created_by
+      }));
+    } catch (error) {
+      console.error('Error fetching donations by date range:', error);
       throw error;
     }
   }

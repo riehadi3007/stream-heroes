@@ -11,9 +11,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
-import { PlusCircle, Pencil, Trash2, GamepadIcon } from 'lucide-react'
+import { PlusCircle, Pencil, Trash2, GamepadIcon, Plus } from 'lucide-react'
 import DonatorForm from './donator-form'
 import { CurrentGameService } from '@/lib/current-game-service'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+import { DonationHistoryService } from '@/lib/donation-history-service'
 
 type DonatorWithCategory = Donator & { 
   categories: Category 
@@ -25,6 +33,7 @@ export default function DonatorsPage() {
   const [openCreateDialog, setOpenCreateDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [openAddGamesDialog, setOpenAddGamesDialog] = useState(false)
   const [selectedDonator, setSelectedDonator] = useState<DonatorWithCategory | null>(null)
   const [donatorToDelete, setDonatorToDelete] = useState<Donator | null>(null)
   const [addingToGame, setAddingToGame] = useState<string | null>(null)
@@ -63,11 +72,20 @@ export default function DonatorsPage() {
     categoryPrice: number
   ) => {
     try {
-      await DonatorService.create({
+      // Create the donator
+      const newDonator = await DonatorService.create({
         name: formData.name,
         category_id: formData.category_id,
         total_game: formData.total_game
       }, categoryPrice)
+      
+      // Record in donation history
+      await DonationHistoryService.addRecord({
+        donator_id: newDonator.id,
+        amount: categoryPrice * formData.total_game,
+        event_type: 'new_donator',
+        games_added: formData.total_game
+      });
       
       toast.success('Donator created successfully')
       setOpenCreateDialog(false)
@@ -139,6 +157,58 @@ export default function DonatorsPage() {
     setOpenDeleteDialog(true)
   }
 
+  // Schema for add games form
+  const addGamesSchema = z.object({
+    donator_id: z.string().min(1, "Please select a donator"),
+    games_to_add: z.coerce.number().int().min(1, "Must add at least 1 game")
+  })
+
+  const addGamesForm = useForm<z.infer<typeof addGamesSchema>>({
+    resolver: zodResolver(addGamesSchema),
+    defaultValues: {
+      donator_id: "",
+      games_to_add: 1
+    }
+  })
+
+  const handleAddGames = async (data: z.infer<typeof addGamesSchema>) => {
+    try {
+      console.log("handleAddGames called with data:", data); // Debug log
+      const donator = donators.find(d => d.id === data.donator_id)
+      if (!donator) {
+        toast.error("Selected donator not found");
+        return;
+      }
+
+      // Calculate new total games
+      const newTotalGames = donator.total_game + data.games_to_add
+      
+      // Update the donator
+      await DonatorService.update(donator.id, {
+        name: donator.name,
+        category_id: donator.category_id,
+        total_game: newTotalGames
+      }, donator.categories.price)
+      
+      // Record in donation history
+      await DonationHistoryService.addRecord({
+        donator_id: donator.id,
+        amount: donator.categories.price * data.games_to_add,
+        event_type: 'add_games',
+        games_added: data.games_to_add
+      });
+      
+      toast.success(`Added ${data.games_to_add} games to ${donator.name}`)
+      setOpenAddGamesDialog(false)
+      addGamesForm.reset()
+      loadDonators()
+    } catch (error: any) {
+      console.error('Failed to add games', error)
+      const errorMessage = error.message || 'Failed to add games'
+      toast.error(errorMessage)
+    }
+  }
+
   // Show loading or redirect when not authenticated
   if (isLoading || !user) {
     return (
@@ -157,23 +227,90 @@ export default function DonatorsPage() {
             <CardTitle>Donators</CardTitle>
             <CardDescription>Manage your donators and their donations</CardDescription>
           </div>
-          <Dialog open={openCreateDialog} onOpenChange={setOpenCreateDialog}>
-            <DialogTrigger asChild>
-              <Button className="ml-auto">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Donator
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Donator</DialogTitle>
-              </DialogHeader>
-              <DonatorForm 
-                onSubmit={handleCreateDonator} 
-                initialData={{ name: '', category_id: '', total_game: 1 }}
-              />
-            </DialogContent>
-          </Dialog>
+          <div className="flex gap-2">
+            <Dialog open={openAddGamesDialog} onOpenChange={setOpenAddGamesDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Games
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Games to Existing Donator</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={addGamesForm.handleSubmit(handleAddGames)} className="space-y-4 pt-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="donator_id">Select Donator</Label>
+                      <Select 
+                        onValueChange={(value) => addGamesForm.setValue("donator_id", value)} 
+                        defaultValue={addGamesForm.getValues("donator_id")}
+                      >
+                        <SelectTrigger id="donator_id">
+                          <SelectValue placeholder="Select donator" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {donators.map((donator) => (
+                            <SelectItem key={donator.id} value={donator.id}>
+                              {donator.name} ({donator.categories.name})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {addGamesForm.formState.errors.donator_id && (
+                        <p className="text-sm text-red-500">{addGamesForm.formState.errors.donator_id.message}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="games_to_add">Number of Games to Add</Label>
+                      <Input 
+                        id="games_to_add"
+                        type="number" 
+                        min="1"
+                        {...addGamesForm.register("games_to_add", { valueAsNumber: true })}
+                      />
+                      {addGamesForm.formState.errors.games_to_add && (
+                        <p className="text-sm text-red-500">{addGamesForm.formState.errors.games_to_add.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setOpenAddGamesDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">
+                        Add Games
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={openCreateDialog} onOpenChange={setOpenCreateDialog}>
+              <DialogTrigger asChild>
+                <Button className="ml-auto">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  New Donator
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Donator</DialogTitle>
+                </DialogHeader>
+                <DonatorForm 
+                  onSubmit={handleCreateDonator} 
+                  initialData={{ name: '', category_id: '', total_game: 1 }}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -204,13 +341,6 @@ export default function DonatorsPage() {
                       <TableCell>{donator.total_game}</TableCell>
                       <TableCell>Rp. {donator.total_donation.toLocaleString('id-ID')}</TableCell>
                       <TableCell className="text-right space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => openEdit(donator)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
                         <Button 
                           variant="outline" 
                           size="sm" 
